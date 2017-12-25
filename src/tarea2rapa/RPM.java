@@ -5,6 +5,7 @@
  */
 package tarea2rapa;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -15,12 +16,8 @@ import java.util.Stack;
  */
 public class RPM {
     
-    private HashMap<String,String> hash;
     
     public RPM(){
-        this.hash = new HashMap<>();
-        this.hash.put("$a", "33");
-        this.hash.put("$b", "34");
     }
     
     public ArrayList<String> infijoToRPM(String input){
@@ -158,6 +155,10 @@ public class RPM {
             if (element.contains("$")){
                 String key = element;
                 String value = hash.get(key);
+                // pregunto si la variable se encuentra
+                if (value == null){
+                    return null;
+                }
                 stack.push(value);
             }
             // Si no es una variable es un numero o un operador
@@ -169,29 +170,31 @@ public class RPM {
                 boolean  esOperador = esOperador(element);
                 if (esOperador){
                     String s = stack.pop();
-                    int operando1 =  Integer.valueOf(s);
+                    BigInteger op1 = new BigInteger(s);
+                    //int operando1 =  Integer.valueOf(s);
                     s = stack.pop();
-                    int operando2 = Integer.valueOf(s);
+                    BigInteger op2 = new BigInteger(s);
+                    //int operando2 = Integer.valueOf(s);
                     String res = "";
                     switch (element) {
                         case "*":
-                            res = String.valueOf(operando2*operando1);
+                            res = String.valueOf(op2.multiply(op1));
                             stack.push(res);
                             break;
                         case "/":
-                            res = String.valueOf(operando2/operando1);
+                            res = String.valueOf(op2.divide(op1));
                             stack.push(res);
                             break;
                         case "%":
-                            res = String.valueOf(operando2%operando1);
+                            res = String.valueOf(op2.mod(op1));
                             stack.push(res);
                             break;
                         case "+":
-                            res = String.valueOf(operando2+operando1);
+                            res = String.valueOf(op2.add(op1));
                             stack.push(res);
                             break;
                         case "-":
-                            res = String.valueOf(operando2-operando1);
+                            res = String.valueOf(op2.subtract(op1));
                             stack.push(res);
                             break;
                     }
@@ -211,7 +214,11 @@ public class RPM {
     
     public boolean isNumeric(String s){
         try{
-            int num = Integer.parseInt(s);
+            BigInteger b = new BigInteger(s);
+            //int num = Integer.parseInt(s);
+            //BigInteger b = new BigInteger(s);
+            
+            
         }
         catch(NumberFormatException e){
             return false;

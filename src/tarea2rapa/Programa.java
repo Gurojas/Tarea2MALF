@@ -7,6 +7,7 @@ package tarea2rapa;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -50,8 +51,13 @@ public class Programa {
         while (scanner.hasNextLine()){
             String line = scanner.nextLine();
             if (this.read(line)){
+                System.out.println("Lectura exitosa");
             }
             else if (this.write(line)){
+                System.out.println("Escritura exitosa");
+            }
+            else if(this.asignacion(line)){
+                System.out.println("Asignacion exitosa");
             }
         }
     }
@@ -95,6 +101,9 @@ public class Programa {
                 exp = exp.substring(0,index);
                 RPM rpm = new RPM();
                 String res = rpm.resultadoRPM(exp, this.hash);
+                if (res == null){
+                    return false;
+                }
                 System.out.println(res);
                 return true;
             }
@@ -107,7 +116,35 @@ public class Programa {
         }
     }
     
-    public void asignacion(){
-        
+    public boolean asignacion(String line){
+        Scanner scanner = new Scanner(line);
+        String token = scanner.next();
+        if (token.contains("$")){
+            String key = token;
+            token = scanner.next();
+            if (token.equals("=")){
+                String exp = "";
+                while (scanner.hasNext()){
+                    exp = exp + scanner.next();
+                }
+                if (exp.endsWith(";")){
+                    int index = exp.indexOf(";");
+                    exp = exp.substring(0, index);
+                    RPM rpm = new RPM();
+                    String res = rpm.resultadoRPM(exp, this.hash);
+                    this.hash.put(key, res);
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
     }
 }

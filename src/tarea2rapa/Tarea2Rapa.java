@@ -5,6 +5,7 @@
  */
 package tarea2rapa;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -26,6 +27,8 @@ public class Tarea2Rapa {
         //System.out.println(reglas.parserN("23"));
         Programa programa = new Programa("prog");
         programa.leerPrograma();
+        
+
         
         
         
