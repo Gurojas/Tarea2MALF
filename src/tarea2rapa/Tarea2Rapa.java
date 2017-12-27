@@ -27,8 +27,6 @@ public class Tarea2Rapa {
         //System.out.println(reglas.parserN("23"));
         Programa programa = new Programa("prog");
         programa.leerPrograma();
-
-        
         
         
     }

@@ -27,6 +27,7 @@ public class RPM {
         Stack<Character> stack = new Stack<>();
         String output = "";
         String num = "";
+        
         // leo todos los token de entrada
         int i = 0;
         while (i < n) {
@@ -143,18 +144,19 @@ public class RPM {
     }
     
     
-    public String resultadoRPM(String expression, HashMap<String,String> hash){
+    public BigInteger resultadoRPM(String expression, HashMap<String,BigInteger> hash){
         ArrayList<String> notRPM = this.infijoToRPM(expression);
         //char elements[] = notRPM.toCharArray();
-        Stack<String> stack = new Stack<>();
+        Stack<BigInteger> stack = new Stack<>();
         String output = "";
+        BigInteger resFinal = BigInteger.ZERO;
         int n = notRPM.size();
         for (int i = 0; i < n; i++) {
             String element = notRPM.get(i);
             // pregunto si es una variable
             if (element.contains("$")){
                 String key = element;
-                String value = hash.get(key);
+                BigInteger value = hash.get(key);
                 // pregunto si la variable se encuentra
                 if (value == null){
                     return null;
@@ -165,37 +167,44 @@ public class RPM {
             else{
                 boolean esNumero = isNumeric(element);
                 if (esNumero){
-                    stack.push(element);
+                    BigInteger bi = new BigInteger(element);
+                    stack.push(bi);
                 }
                 boolean  esOperador = esOperador(element);
                 if (esOperador){
-                    String s = stack.pop();
-                    BigInteger op1 = new BigInteger(s);
+                    //String s = stack.pop();
+                    //BigInteger op1 = new BigInteger(s);
+                    BigInteger op1 = stack.pop();
                     //int operando1 =  Integer.valueOf(s);
-                    s = stack.pop();
-                    BigInteger op2 = new BigInteger(s);
+                    //s = stack.pop();
+                    BigInteger op2 = stack.pop();
                     //int operando2 = Integer.valueOf(s);
                     String res = "";
                     switch (element) {
                         case "*":
                             res = String.valueOf(op2.multiply(op1));
-                            stack.push(res);
+                            BigInteger b = new BigInteger(res);
+                            stack.push(b);
                             break;
                         case "/":
                             res = String.valueOf(op2.divide(op1));
-                            stack.push(res);
+                            BigInteger b1 = new BigInteger(res);
+                            stack.push(b1);
                             break;
                         case "%":
                             res = String.valueOf(op2.mod(op1));
-                            stack.push(res);
+                            BigInteger b2 = new BigInteger(res);
+                            stack.push(b2);
                             break;
                         case "+":
                             res = String.valueOf(op2.add(op1));
-                            stack.push(res);
+                            BigInteger b3 = new BigInteger(res);
+                            stack.push(b3);
                             break;
                         case "-":
                             res = String.valueOf(op2.subtract(op1));
-                            stack.push(res);
+                            BigInteger b4 = new BigInteger(res);
+                            stack.push(b4);
                             break;
                     }
                 }
@@ -206,10 +215,11 @@ public class RPM {
         }
         
         if (stack.size() == 1){
-            output = stack.pop();
+            //output = stack.pop();
+            resFinal = stack.pop();
         }
         
-        return output;  
+        return resFinal;  
     }
     
     public boolean isNumeric(String s){

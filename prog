@@ -1,6 +1,14 @@
 read $a;
 if ($a>2) then
-	write $a + 1;
+	if ($a==4) then
+		write $a + 1;
+	else
+		write $a + 100;
+	endif;
+	write 111111111111111111111111111111111111;
 else
-	write $a + 10;	
+	write $a - 1;
+endif;
+if ($a<2) then
+	write $a + 100000000;
 endif;

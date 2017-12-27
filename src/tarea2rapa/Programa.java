@@ -7,6 +7,7 @@ package tarea2rapa;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -20,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class Programa {
     
-    private HashMap<String,String> hash;
+    private HashMap<String,BigInteger> hash;
     private ArrayList<String> instrucciones;
     private HashMap<Integer,BuscaIf> ifs;
     private Scanner scanner;
@@ -50,13 +51,6 @@ public class Programa {
             String line = scanner.nextLine();
             this.instrucciones.add(line);
             
-            if (line.contains("if") && !line.equals("endif;")){
-                System.out.println("ocurrencia if: "+i);
-            }
-            if (line.contains("endif;")){
-                System.out.println("Ocurrencia endif: "+i);
-            }
-            i++;
             this.programa = this.programa + line+"\n";
         }
         
@@ -150,7 +144,7 @@ public class Programa {
     
      public void leerPrograma(int i, int f){
         Scanner scanner = new Scanner(this.programa);
-     
+        
         for (int j = i; j < f; j++) {
             String line = instrucciones.get(j);
             if (this.read(line)){
@@ -163,7 +157,7 @@ public class Programa {
                 System.out.println("Asignacion exitosa");
             }
             else if (this.condicion(line, j)){
-                
+                j = pcCounter;
             }
         }  
     }
@@ -189,7 +183,7 @@ public class Programa {
                     int index = token.indexOf(";");
                     token = token.substring(0, index);
                     String key = token;
-                    String value = this.scanner.nextLine();
+                    BigInteger value = this.scanner.nextBigInteger();
                     this.hash.put(key, value);
                     return true;
                 }
@@ -232,11 +226,12 @@ public class Programa {
             if (exp.endsWith(";")){
                 exp = exp.substring(0,index);
                 RPM rpm = new RPM();
-                String res = rpm.resultadoRPM(exp, this.hash);
-                if (res == null){
+                BigInteger bi = rpm.resultadoRPM(exp, this.hash);
+                //String res = rpm.resultadoRPM(exp, this.hash);
+                if (bi == null){
                     return false;
                 }
-                System.out.println(res);
+                System.out.println(bi);
                 return true;
             }
             else{
@@ -263,8 +258,9 @@ public class Programa {
                     int index = exp.indexOf(";");
                     exp = exp.substring(0, index);
                     RPM rpm = new RPM();
-                    String res = rpm.resultadoRPM(exp, this.hash);
-                    this.hash.put(key, res);
+                    //String res = rpm.resultadoRPM(exp, this.hash);
+                    BigInteger bi = rpm.resultadoRPM(exp, this.hash);
+                    this.hash.put(key, bi);
                     return true;
                 }
                 else{
@@ -299,6 +295,8 @@ public class Programa {
                     String res1 = "";
                     String res2 = "";
                     String oplog = "";
+                    BigInteger resu1 = BigInteger.ZERO;
+                    BigInteger resu2 = BigInteger.ZERO;
                     if (exp.contains(">=")){
                         int ocu = exp.indexOf(">=");
                         exp1 = exp.substring(0, ocu);
@@ -337,29 +335,41 @@ public class Programa {
                         oplog = "!=";
                     }
                     RPM rpm = new RPM();
-                    res1 = rpm.resultadoRPM(exp1, hash);
-                    res2 = rpm.resultadoRPM(exp2, hash);
+                    resu1 = rpm.resultadoRPM(exp1, hash);
+                    resu2 = rpm.resultadoRPM(exp2, hash);
                     
                     
                     token = scanner.next();
                     if (token.equals("then")){
                         boolean val = false;
                         if (oplog.equals(">=")){
+                            res1 = String.valueOf(resu1);
+                            res2 = String.valueOf(resu2);
                             val = Integer.valueOf(res1) >= Integer.valueOf(res2);
                         }
                         else if (oplog.equals("<=")){
+                            res1 = String.valueOf(resu1);
+                            res2 = String.valueOf(resu2);
                             val = Integer.valueOf(res1) <= Integer.valueOf(res2);
                         }
                         else if (oplog.equals(">")){
+                            res1 = String.valueOf(resu1);
+                            res2 = String.valueOf(resu2);
                             val = Integer.valueOf(res1) > Integer.valueOf(res2);
                         }
                         else if (oplog.equals("<")){
+                            res1 = String.valueOf(resu1);
+                            res2 = String.valueOf(resu2);
                             val = Integer.valueOf(res1) < Integer.valueOf(res2);
                         }
                         else if (oplog.equals("==")){
+                            res1 = String.valueOf(resu1);
+                            res2 = String.valueOf(resu2);
                             val = Integer.valueOf(res1) == Integer.valueOf(res2);
                         }
                         else if (oplog.equals("!=")){
+                            res1 = String.valueOf(resu1);
+                            res2 = String.valueOf(resu2);
                             val = Integer.valueOf(res1) != Integer.valueOf(res2);
                         }
                         // aca veo si salto a un endif o a un else
@@ -370,6 +380,11 @@ public class Programa {
                                 pcCounter = buscaif.indexEndif;
                                 return true;
                             }
+                            else{
+                                this.leerPrograma(buscaif.getIndexIf()+1, buscaif.indexEndif);
+                                pcCounter = buscaif.indexEndif;
+                                return true;
+                            }
                         }
                         else{
                             if (buscaif.indexElse != -1 && buscaif.indexEndif != -1){
@@ -377,7 +392,10 @@ public class Programa {
                                 pcCounter = buscaif.indexEndif;
                                 return true;
                             }
-                            return false;
+                            else{
+                                pcCounter = buscaif.indexEndif;
+                                return true;
+                            }
                         }
                     }
                     else{
@@ -396,7 +414,6 @@ public class Programa {
         else{
             return false;
         }
-        return true;
     }
     
     private class BuscaIf{
