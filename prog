@@ -1,4 +1,6 @@
 read $a;
-if ($a > 2) then
+if ($a>2) then
 	write $a + 1;
-endif;	
+else
+	write $a + 10;	
+endif;

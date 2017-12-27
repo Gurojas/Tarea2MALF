@@ -22,14 +22,15 @@ public class Programa {
     
     private HashMap<String,String> hash;
     private ArrayList<String> instrucciones;
-    private ArrayList<BuscaIf> ifs;
+    private HashMap<Integer,BuscaIf> ifs;
     private Scanner scanner;
     private String programa;
+    private int pcCounter = 0;
     
     public Programa(String ruta){
         this.hash = new HashMap<>();
         this.instrucciones = new ArrayList<>();
-        this.ifs = new ArrayList<>();
+        this.ifs = new HashMap<>();
         this.scanner = new Scanner(System.in);
         this.programa = "";
         
@@ -98,31 +99,24 @@ public class Programa {
                     }
                     else if (token.equals(findEndif)){
                         buscaIf.setIndexEndif(l);
+                        break;
                     }
                     
                 }
 
-                this.ifs.add(buscaIf);
+                this.ifs.put(j,buscaIf);
 
-                
-                
             }
-            
-
-            
-            
         }
-        
         int a = 2;
-        
-        
-        
+
     }
     
     // Metodo que lee el programa que esta almacenado en el atributo programa
     // y revisa cada linea y pregunta de que tipo de instruccion es
     public void leerPrograma(){
         Scanner scanner = new Scanner(this.programa);
+        /*
         while (scanner.hasNextLine()){
             String line = scanner.nextLine();
             if (this.read(line)){
@@ -135,7 +129,46 @@ public class Programa {
                 System.out.println("Asignacion exitosa");
             }
         }
+        */
+        
+        for (pcCounter = 0; pcCounter < this.instrucciones.size(); pcCounter++) {
+            String line = instrucciones.get(pcCounter);
+            if (this.read(line)){
+                System.out.println("Lectura exitosa");
+            }
+            else if (this.write(line)){
+                System.out.println("Escritura exitosa");
+            }
+            else if(this.asignacion(line)){
+                System.out.println("Asignacion exitosa");
+            }
+            else if (this.condicion(line, pcCounter)){
+                
+            }
+        }  
     }
+    
+     public void leerPrograma(int i, int f){
+        Scanner scanner = new Scanner(this.programa);
+     
+        for (int j = i; j < f; j++) {
+            String line = instrucciones.get(j);
+            if (this.read(line)){
+                System.out.println("Lectura exitosa");
+            }
+            else if (this.write(line)){
+                System.out.println("Escritura exitosa");
+            }
+            else if(this.asignacion(line)){
+                System.out.println("Asignacion exitosa");
+            }
+            else if (this.condicion(line, j)){
+                
+            }
+        }  
+    }
+    
+    
     
     // Metodo que simula la funcion read().Esta funcion recibe un dato por 
     // entrada estandar y la guarda en una variable
@@ -249,9 +282,122 @@ public class Programa {
     
     
     
-    //public boolean condicion(){
+    public boolean condicion(String line, int index){
+        BuscaIf buscaif = this.ifs.get(index);
         
-    //}
+        Scanner scanner = new Scanner(line);
+        String token = scanner.next();
+        if (token.contains("if")){
+            if (scanner.hasNext()){
+                token = scanner.next();
+                if (token.startsWith("(") && token.endsWith(")")){
+                    int apertura = token.indexOf("(");
+                    int cerradura = token.indexOf(")");
+                    String exp = token.substring(apertura+1, cerradura);
+                    String exp1 = "";
+                    String exp2 = "";
+                    String res1 = "";
+                    String res2 = "";
+                    String oplog = "";
+                    if (exp.contains(">=")){
+                        int ocu = exp.indexOf(">=");
+                        exp1 = exp.substring(0, ocu);
+                        exp2 = exp.substring(ocu+2,exp.length());
+                        oplog = ">=";
+                        
+                    }
+                    else if (exp.contains("<=")){
+                        int ocu = exp.indexOf("<=");
+                        exp1 = exp.substring(0, ocu);
+                        exp2 = exp.substring(ocu+2,exp.length());
+                        oplog = "<=";
+                    }
+                    else if (exp.contains("<")){
+                        int ocu = exp.indexOf("<");
+                        exp1 = exp.substring(0, ocu);
+                        exp2 = exp.substring(ocu+1,exp.length());
+                        oplog = "<";
+                    }
+                    else if (exp.contains(">")){
+                        int ocu = exp.indexOf(">");
+                        exp1 = exp.substring(0, ocu);
+                        exp2 = exp.substring(ocu+1,exp.length());
+                        oplog = ">";
+                    }
+                    else if (exp.contains("==")){
+                        int ocu = exp.indexOf("==");
+                        exp1 = exp.substring(0, ocu);
+                        exp2 = exp.substring(ocu+2,exp.length());
+                        oplog = "==";
+                    }
+                    else if (exp.contains("!=")){
+                        int ocu = exp.indexOf("!=");
+                        exp1 = exp.substring(0, ocu);
+                        exp2 = exp.substring(ocu+2,exp.length());
+                        oplog = "!=";
+                    }
+                    RPM rpm = new RPM();
+                    res1 = rpm.resultadoRPM(exp1, hash);
+                    res2 = rpm.resultadoRPM(exp2, hash);
+                    
+                    
+                    token = scanner.next();
+                    if (token.equals("then")){
+                        boolean val = false;
+                        if (oplog.equals(">=")){
+                            val = Integer.valueOf(res1) >= Integer.valueOf(res2);
+                        }
+                        else if (oplog.equals("<=")){
+                            val = Integer.valueOf(res1) <= Integer.valueOf(res2);
+                        }
+                        else if (oplog.equals(">")){
+                            val = Integer.valueOf(res1) > Integer.valueOf(res2);
+                        }
+                        else if (oplog.equals("<")){
+                            val = Integer.valueOf(res1) < Integer.valueOf(res2);
+                        }
+                        else if (oplog.equals("==")){
+                            val = Integer.valueOf(res1) == Integer.valueOf(res2);
+                        }
+                        else if (oplog.equals("!=")){
+                            val = Integer.valueOf(res1) != Integer.valueOf(res2);
+                        }
+                        // aca veo si salto a un endif o a un else
+                        
+                        if (val){
+                            if (buscaif.indexIf != -1 && buscaif.indexElse != -1){
+                                this.leerPrograma(buscaif.getIndexIf()+1, buscaif.getIndexElse());
+                                pcCounter = buscaif.indexEndif;
+                                return true;
+                            }
+                        }
+                        else{
+                            if (buscaif.indexElse != -1 && buscaif.indexEndif != -1){
+                                this.leerPrograma(buscaif.getIndexElse()+1, buscaif.getIndexEndif());
+                                pcCounter = buscaif.indexEndif;
+                                return true;
+                            }
+                            return false;
+                        }
+                    }
+                    else{
+                        return false;
+                    }
+                }
+                else{
+                    return false;
+                }
+                
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return false;
+        }
+        return true;
+    }
     
     private class BuscaIf{
         private int indexIf = -1;
