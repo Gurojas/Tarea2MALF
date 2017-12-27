@@ -1,7 +1,4 @@
 read $a;
-read $b;
-write $a*$b;
-write $a/$b;
-write $a%$b;
-write $a+$b;
-write $a-$b;
+if ($a > 2) then
+	write $a + 1;
+endif;	

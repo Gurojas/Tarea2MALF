@@ -26,9 +26,11 @@ public class Tarea2Rapa {
         Reglas reglas = new Reglas();
         //System.out.println(reglas.parserN("23"));
         Programa programa = new Programa("prog");
-        programa.leerPrograma();
+        //programa.leerPrograma();
         
-
+        String regla = "(\t)*if";
+        String ins = "if";
+        
         
         
         
