@@ -28,11 +28,29 @@ public class Tarea2Rapa {
         Programa programa = new Programa("prog");
         programa.leerPrograma();
         
+
         
+        /*
+        String a = "if (4 <= n) then";
+        Scanner scanner = new Scanner(a);
+        
+        String token = scanner.next();
+        token = scanner.nextLine();
+        
+        int apertura = token.indexOf("(");
+        int cerradura = token.indexOf(")");
+        
+        String exp = token.substring(apertura+1,cerradura);
+        System.out.println(exp);
+        
+        token = token.substring(cerradura+2);
+        System.out.println(token);
+        
+        */
         
         
         /*
-        int n = 10;
+        int n = 12;
         int act = 0;
         if (n < 2){
             System.out.println(n);
@@ -49,7 +67,8 @@ public class Tarea2Rapa {
             }
             System.out.println(act);
         }
-        */
+*/
+        
         
         
         

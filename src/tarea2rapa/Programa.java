@@ -339,11 +339,16 @@ public class Programa {
         String token = scanner.next();
         if (token.contains("if")){
             if (scanner.hasNext()){
-                token = scanner.next();
-                if (token.startsWith("(") && token.endsWith(")")){
-                    int apertura = token.indexOf("(");
-                    int cerradura = token.indexOf(")");
-                    String exp = token.substring(apertura+1, cerradura);
+                token = scanner.nextLine();
+                
+                int apertura = token.indexOf("(");
+                int cerradura = token.indexOf(")");
+                String exp = token.substring(apertura+1,cerradura);
+                
+                //if (token.startsWith("(") && token.endsWith(")")){
+                    //int apertura = token.indexOf("(");
+                    //int cerradura = token.indexOf(")");
+                    //String exp = token.substring(apertura+1, cerradura);
                     String exp1 = "";
                     String exp2 = "";
                     String res1 = "";
@@ -389,11 +394,13 @@ public class Programa {
                         oplog = "!=";
                     }
                     RPM rpm = new RPM();
+                    exp1 = exp1.replaceAll(" ", "");
                     resu1 = rpm.resultadoRPM(exp1, hash);
+                    exp2 = exp2.replaceAll(" ", "");
                     resu2 = rpm.resultadoRPM(exp2, hash);
                     
-                    
-                    token = scanner.next();
+                    token = token.substring(cerradura+2);
+                    //token = scanner.next();
                     if (token.equals("then")){
                         boolean val = false;
                         if (oplog.equals(">=")){
@@ -464,10 +471,10 @@ public class Programa {
             else{
                 return false;
             }
-        }
-        else{
-            return false;
-        }
+        //}
+        //else{
+        //    return false;
+        //}
     }
     
     public boolean ciclo(String line, int index){
@@ -527,7 +534,9 @@ public class Programa {
             oplog = "!=";
         }
         RPM rpm = new RPM();
+        exp1 = exp1.replaceAll(" ", "");
         resu1 = rpm.resultadoRPM(exp1, this.hash);
+        exp2 = exp2.replaceAll(" ", "");
         resu2 = rpm.resultadoRPM(exp2, this.hash);
         
         boolean val = false;
@@ -565,8 +574,9 @@ public class Programa {
         while(val){
             
             this.leerPrograma(buscaWhile.indexWhile+1, buscaWhile.indexEndwhile);
-            
+            exp1 = exp1.replaceAll(" ", "");
             resu1 = rpm.resultadoRPM(exp1, this.hash);
+            exp2 = exp2.replaceAll(" ", "");
             resu2 = rpm.resultadoRPM(exp2, this.hash);
             if (oplog.equals(">=")){
                 res1 = String.valueOf(resu1);
