@@ -29,6 +29,31 @@ public class Tarea2Rapa {
         programa.leerPrograma();
         
         
+        
+        
+        /*
+        int n = 10;
+        int act = 0;
+        if (n < 2){
+            System.out.println(n);
+        }
+        else{
+            int fib1 = 1;
+            int fib2 = 0;
+            int i = 2;
+            while (i <= n){
+                act = fib1 + fib2;
+                fib2 = fib1;
+                fib1 = act;
+                i = i + 1;
+            }
+            System.out.println(act);
+        }
+        */
+        
+        
+        
+        
     }
     
 }

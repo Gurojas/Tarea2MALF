@@ -15,7 +15,7 @@ import java.util.Stack;
  * @author glady
  */
 public class RPM {
-    
+
     
     public RPM(){
     }
@@ -80,9 +80,13 @@ public class RPM {
                     c = inputChar[i];
                     esAlfaNumerico = (c >= 97 && c <= 122) || (c >= 48 && c <= 57);
                 }
-      
+                
+                if (i + 1 == n){
+                    break;
+                }
+                
             }
-            
+                      
             // pregunto si lo que me viene es un numero
             boolean esNumero = c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9';
             while (esNumero){
@@ -100,6 +104,7 @@ public class RPM {
                 esNumero = c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9';
             }
             
+                   
             // pregunto si lo que me viene es un operador * o / o % o + o -
             boolean esOperador = c == '*' || c == '/' || c == '%' || c == '+' || c == '-';
             if (esOperador){
@@ -129,7 +134,11 @@ public class RPM {
                     stack.push(c);
                 }
             }
+            
+            
             i++;
+            
+            
         }
         // termino de leer los tokens de la entrada
         
@@ -157,6 +166,7 @@ public class RPM {
             if (element.contains("$")){
                 String key = element;
                 BigInteger value = hash.get(key);
+
                 // pregunto si la variable se encuentra
                 if (value == null){
                     return null;

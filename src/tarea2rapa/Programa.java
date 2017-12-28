@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +25,7 @@ public class Programa {
     private HashMap<String,BigInteger> hash;
     private ArrayList<String> instrucciones;
     private HashMap<Integer,BuscaIf> ifs;
+    private HashMap<Integer,BuscaWhile> whiles;
     private Scanner scanner;
     private String programa;
     private int pcCounter = 0;
@@ -32,6 +34,7 @@ public class Programa {
         this.hash = new HashMap<>();
         this.instrucciones = new ArrayList<>();
         this.ifs = new HashMap<>();
+        this.whiles = new HashMap<>();
         this.scanner = new Scanner(System.in);
         this.programa = "";
         
@@ -101,6 +104,40 @@ public class Programa {
                 this.ifs.put(j,buscaIf);
 
             }
+            else if (line.contains("while") && !line.contains("wend;")){
+                BuscaWhile buscaWhile = new BuscaWhile();
+                buscaWhile.setIndexWhile(j);
+                int k = 0;
+                char c = line.charAt(k);
+                int count = 0;
+                if (c == '\t'){
+                    count = count + 1;
+                    k++;
+                    c = line.charAt(k);
+                    while (c == '\t'){
+                        count++;
+                        k++;
+                        c = line.charAt(k);
+                    }
+                }
+                // concateno los \t
+                String findEndWhile = "";
+                for (int l = 0; l < count; l++) {
+                    findEndWhile = "\t" + findEndWhile;
+                }
+                findEndWhile = findEndWhile+"wend;";
+                
+                // ahora busco donde estan los else o if
+                for (int l = j; l < instrucciones.size(); l++) {
+                    String token = instrucciones.get(l);
+                    if (token.equals(findEndWhile)){
+                        buscaWhile.setIndexEndwhile(l);
+                        break;
+                    }  
+                }
+                this.whiles.put(j,buscaWhile);
+                
+            }
         }
         int a = 2;
 
@@ -133,12 +170,18 @@ public class Programa {
             else if (this.write(line)){
                 System.out.println("Escritura exitosa");
             }
+            
             else if(this.asignacion(line)){
                 System.out.println("Asignacion exitosa");
             }
+            
             else if (this.condicion(line, pcCounter)){
                 
             }
+            else if (this.ciclo(line, pcCounter)){
+                
+            }
+            
         }  
     }
     
@@ -157,6 +200,9 @@ public class Programa {
                 System.out.println("Asignacion exitosa");
             }
             else if (this.condicion(line, j)){
+                j = pcCounter;
+            }
+            else if (this.ciclo(line, j)){
                 j = pcCounter;
             }
         }  
@@ -183,7 +229,15 @@ public class Programa {
                     int index = token.indexOf(";");
                     token = token.substring(0, index);
                     String key = token;
-                    BigInteger value = this.scanner.nextBigInteger();
+                    BigInteger value = BigInteger.ZERO;
+                    try{
+                        value = this.scanner.nextBigInteger();
+                    }
+                    catch(InputMismatchException e){
+                        System.out.println("error: La entrada no es un numero");
+                        return false;
+                    }
+                    //BigInteger value = this.scanner.nextBigInteger();
                     this.hash.put(key, value);
                     return true;
                 }
@@ -416,6 +470,141 @@ public class Programa {
         }
     }
     
+    public boolean ciclo(String line, int index){
+        BuscaWhile buscaWhile = this.whiles.get(index);
+        Scanner scanner = new Scanner(line);
+        String token = scanner.nextLine();
+        
+        if (!token.contains("while")){
+            return false;
+        }
+        
+        int apertura = token.indexOf("(");
+        int cerradura = token.indexOf(")");
+        String exp = token.substring(apertura+1, cerradura);
+        String exp1 = "";
+        String exp2 = "";
+        String res1 = "";
+        String res2 = "";
+        String oplog = "";
+        BigInteger resu1 = BigInteger.ZERO;
+        BigInteger resu2 = BigInteger.ZERO;
+        if (exp.contains(">=")){
+            int ocu = exp.indexOf(">=");
+            exp1 = exp.substring(0, ocu);
+            exp2 = exp.substring(ocu+2,exp.length());
+            oplog = ">=";
+
+        }
+        else if (exp.contains("<=")){
+            int ocu = exp.indexOf("<=");
+            exp1 = exp.substring(0, ocu);
+            exp2 = exp.substring(ocu+2,exp.length());
+            oplog = "<=";
+        }
+        else if (exp.contains("<")){
+            int ocu = exp.indexOf("<");
+            exp1 = exp.substring(0, ocu);
+            exp2 = exp.substring(ocu+1,exp.length());
+            oplog = "<";
+        }
+        else if (exp.contains(">")){
+            int ocu = exp.indexOf(">");
+            exp1 = exp.substring(0, ocu);
+            exp2 = exp.substring(ocu+1,exp.length());
+            oplog = ">";
+        }
+        else if (exp.contains("==")){
+            int ocu = exp.indexOf("==");
+            exp1 = exp.substring(0, ocu);
+            exp2 = exp.substring(ocu+2,exp.length());
+            oplog = "==";
+        }
+        else if (exp.contains("!=")){
+            int ocu = exp.indexOf("!=");
+            exp1 = exp.substring(0, ocu);
+            exp2 = exp.substring(ocu+2,exp.length());
+            oplog = "!=";
+        }
+        RPM rpm = new RPM();
+        resu1 = rpm.resultadoRPM(exp1, this.hash);
+        resu2 = rpm.resultadoRPM(exp2, this.hash);
+        
+        boolean val = false;
+        if (oplog.equals(">=")){
+            res1 = String.valueOf(resu1);
+            res2 = String.valueOf(resu2);
+            val = Integer.valueOf(res1) >= Integer.valueOf(res2);
+        }
+        else if (oplog.equals("<=")){
+            res1 = String.valueOf(resu1);
+            res2 = String.valueOf(resu2);
+            val = Integer.valueOf(res1) <= Integer.valueOf(res2);
+        }
+        else if (oplog.equals(">")){
+            res1 = String.valueOf(resu1);
+            res2 = String.valueOf(resu2);
+            val = Integer.valueOf(res1) > Integer.valueOf(res2);
+        }
+        else if (oplog.equals("<")){
+            res1 = String.valueOf(resu1);
+            res2 = String.valueOf(resu2);
+            val = Integer.valueOf(res1) < Integer.valueOf(res2);
+        }
+        else if (oplog.equals("==")){
+            res1 = String.valueOf(resu1);
+            res2 = String.valueOf(resu2);
+            val = Integer.valueOf(res1) == Integer.valueOf(res2);
+        }
+        else if (oplog.equals("!=")){
+            res1 = String.valueOf(resu1);
+            res2 = String.valueOf(resu2);
+            val = Integer.valueOf(res1) != Integer.valueOf(res2);
+        }
+        
+        while(val){
+            
+            this.leerPrograma(buscaWhile.indexWhile+1, buscaWhile.indexEndwhile);
+            
+            resu1 = rpm.resultadoRPM(exp1, this.hash);
+            resu2 = rpm.resultadoRPM(exp2, this.hash);
+            if (oplog.equals(">=")){
+                res1 = String.valueOf(resu1);
+                res2 = String.valueOf(resu2);
+                val = Integer.valueOf(res1) >= Integer.valueOf(res2);
+            }
+            else if (oplog.equals("<=")){
+                res1 = String.valueOf(resu1);
+                res2 = String.valueOf(resu2);
+                val = Integer.valueOf(res1) <= Integer.valueOf(res2);
+            }
+            else if (oplog.equals(">")){
+                res1 = String.valueOf(resu1);
+                res2 = String.valueOf(resu2);
+                val = Integer.valueOf(res1) > Integer.valueOf(res2);
+            }
+            else if (oplog.equals("<")){
+                res1 = String.valueOf(resu1);
+                res2 = String.valueOf(resu2);
+                val = Integer.valueOf(res1) < Integer.valueOf(res2);
+            }
+            else if (oplog.equals("==")){
+                res1 = String.valueOf(resu1);
+                res2 = String.valueOf(resu2);
+                val = Integer.valueOf(res1) == Integer.valueOf(res2);
+            }
+            else if (oplog.equals("!=")){
+                res1 = String.valueOf(resu1);
+                res2 = String.valueOf(resu2);
+                val = Integer.valueOf(res1) != Integer.valueOf(res2);
+            }
+        }
+        pcCounter = buscaWhile.indexEndwhile;
+       
+        
+        return true;
+    }
+    
     private class BuscaIf{
         private int indexIf = -1;
         private int indexElse = -1;
@@ -443,6 +632,29 @@ public class Programa {
 
         public void setIndexEndif(int indexEndif) {
             this.indexEndif = indexEndif;
+        }
+        
+        
+    }
+    
+    private class BuscaWhile{
+        private int indexWhile = -1;
+        private int indexEndwhile = -1;
+
+        public int getIndexWhile() {
+            return indexWhile;
+        }
+
+        public void setIndexWhile(int indexWhile) {
+            this.indexWhile = indexWhile;
+        }
+
+        public int getIndexEndwhile() {
+            return indexEndwhile;
+        }
+
+        public void setIndexEndwhile(int indexEndwhile) {
+            this.indexEndwhile = indexEndwhile;
         }
         
         

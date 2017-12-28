@@ -1,14 +1,15 @@
-read $a;
-if ($a>2) then
-	if ($a==4) then
-		write $a + 1;
-	else
-		write $a + 100;
-	endif;
-	write 111111111111111111111111111111111111;
+read $n;
+if ($n<2) then
+	write $n;
 else
-	write $a - 1;
-endif;
-if ($a<2) then
-	write $a + 100000000;
+	$fib1 = 1;
+	$fib2 = 0;
+	$i = 2;
+	while ($i<=$n) do
+		$act = $fib1 + $fib2;
+		$fib2 = $fib1;
+		$fib1 = $act;
+		$i = $i + 1;
+	wend;
+	write $act;
 endif;
